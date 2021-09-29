@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ## Quick Start
 An example Cloudformation template which deploys a reusable VPC stack providing standard VPC resources in ~3 minutes!  The VPC subnet layout includes 3 tier application subnettings across 2 availability zones, Internet Gateway, public/app/db specific route tables, NAT gateway with public and private route automatically defined.
 
