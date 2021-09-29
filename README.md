@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ## Quick Start
 An example Cloudformation template which deploys a reusable VPC stack providing standard VPC resources in ~3 minutes!  The VPC subnet layout includes 3 tier application subnettings across 2 availability zones, Internet Gateway, public/app/db specific route tables, NAT gateway with public and private route automatically defined.
 
@@ -31,3 +32,22 @@ aws cloudformation delete-stack \
 
 *Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.*
 *SPDX-License-Identifier: MIT-0*
+=======
+## My Project
+
+TODO: Fill this README out!
+
+Be sure to:
+
+* Change the title in this README
+* Edit your repository description on GitHub
+
+## Security
+
+See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
+
+## License
+
+This library is licensed under the MIT-0 License. See the LICENSE file.
+
+>>>>>>> origin/main
