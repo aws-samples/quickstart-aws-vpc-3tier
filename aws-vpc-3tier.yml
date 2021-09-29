@@ -1,0 +1,190 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Reusable cloudformation template provisioning a standard VPC from a single CIDR range parameter
+
+Parameters:
+  vpccidr:
+    Type: String
+    Description: VPC Cidr range
+    ConstraintDescription: A /23 CIDR block is required
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/(23))$"
+  publicroutecidr:
+    Type: String
+    Description: Cidr range for public routes
+    Default: "0.0.0.0/0"
+
+Resources:
+  vpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref vpccidr
+      EnableDnsHostnames: True
+      EnableDnsSupport: True
+      Tags:
+        - Key: Name
+          Value: vpc
+  vpcpubsubneta:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select
+        - 0
+        - !GetAZs
+          Ref: 'AWS::Region'
+      CidrBlock: !Select [ 0, !Cidr [ !GetAtt vpc.CidrBlock, 6, 6 ]]
+      Tags:
+        - Key: Name
+          Value: vpc-pubsubneta
+      VpcId: !Ref vpc
+  vpcpubsubnetb:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select
+        - 1
+        - !GetAZs
+          Ref: 'AWS::Region'
+      CidrBlock: !Select [ 1, !Cidr [ !GetAtt vpc.CidrBlock, 6, 6 ]]
+      Tags:
+        - Key: Name
+          Value: vpc-pubsubnetb
+      VpcId: !Ref vpc
+  vpcappsubneta:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select
+        - 0
+        - !GetAZs
+          Ref: 'AWS::Region'
+      CidrBlock: !Select [ 2, !Cidr [ !GetAtt vpc.CidrBlock, 6, 6 ]]
+      Tags:
+        - Key: Name
+          Value: vpc-appsubneta
+      VpcId: !Ref vpc
+  vpcappsubnetb:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select
+        - 1
+        - !GetAZs
+          Ref: 'AWS::Region'
+      CidrBlock: !Select [ 3, !Cidr [ !GetAtt vpc.CidrBlock, 6, 6 ]]
+      Tags:
+        - Key: Name
+          Value: vpc-appsubnetb
+      VpcId: !Ref vpc
+  vpcdbsubneta:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select
+        - 0
+        - !GetAZs
+          Ref: 'AWS::Region'
+      CidrBlock: !Select [ 4, !Cidr [ !GetAtt vpc.CidrBlock, 6, 6 ]]
+      Tags:
+        - Key: Name
+          Value: vpc-dbsubneta
+      VpcId: !Ref vpc
+  vpcdbsubnetb:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select
+        - 1
+        - !GetAZs
+          Ref: 'AWS::Region'
+      CidrBlock: !Select [ 5, !Cidr [ !GetAtt vpc.CidrBlock, 6, 6 ]]
+      Tags:
+        - Key: Name
+          Value: vpc-dbsubnetb
+      VpcId: !Ref vpc
+  vpcigw:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: vpc-igw
+  vpcigwattach:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref vpcigw
+      VpcId: !Ref vpc
+  vpcnatgweip:
+    Type: AWS::EC2::EIP
+    Properties:
+      Tags:
+        - Key: Name
+          Value: vpc-natgweip
+  vpcnatgw:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt vpcnatgweip.AllocationId
+      SubnetId: !Ref vpcpubsubneta
+      Tags:
+        - Key: Name
+          Value: vpc-natgw
+  vpcpubroutetable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: vpc-pubroutetable
+      VpcId: !Ref vpc
+  vpcapproutetable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: vpc-approutetable
+      VpcId: !Ref vpc
+  vpcdbroutetable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: vpc-dbroutetable
+      VpcId: !Ref vpc
+  vpcpubarouetableass:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref vpcpubroutetable
+      SubnetId: !Ref vpcpubsubneta
+  vpcpubbrouetableass:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref vpcpubroutetable
+      SubnetId: !Ref vpcpubsubnetb
+  vpcapparouetableassa:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref vpcapproutetable
+      SubnetId: !Ref vpcappsubneta
+  vpcappbrouetableassa:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref vpcapproutetable
+      SubnetId: !Ref vpcappsubnetb
+  vpcdbarouetableassa:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref vpcdbroutetable
+      SubnetId: !Ref vpcdbsubneta
+  vpcdbbrouetableassa:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref vpcdbroutetable
+      SubnetId: !Ref vpcdbsubnetb
+  vpcnatpubroute:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: !Ref publicroutecidr
+      RouteTableId: !Ref vpcpubroutetable
+      GatewayId: !Ref vpcigw
+  vpcnatapproute:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: !Ref publicroutecidr
+      RouteTableId: !Ref vpcapproutetable
+      NatGatewayId: !Ref vpcnatgw
+  vpcnatdbroute:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: !Ref publicroutecidr
+      RouteTableId: !Ref vpcdbroutetable
+      NatGatewayId: !Ref vpcnatgw
