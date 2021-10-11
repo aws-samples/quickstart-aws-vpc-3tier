@@ -1,11 +1,11 @@
 ## Quick Start
-An example Cloudformation template which deploys a reusable VPC stack providing standard VPC resources in ~3 minutes!  The VPC subnet layout includes 3 tier application subnettings across 2 availability zones, Internet Gateway, public/app/db specific route tables, NAT gateway with public and private route automatically defined.
+An example Cloudformation template which deploys a reusable VPC stack providing standard VPC resources in ~3 minutes!  The VPC subnet layout includes 3 tier application subnettings across 2 availability zones, Internet Gateway, public/app/db specific route tables, NAT gateway with public and private routes automatically defined.
 
 <img src="design.png" alt="design" width="600px"/>
 
-A /23 Cidr range is required to be passed in as a parameter. The cloudformation template has an 'AllowedPattern' specified to check the passed in Cidr range is the correct subnet size. Built-in intrinsic functions - !Select and !Cidr - divide the supplied Cidr range into 6 /26 subnets and assigns them to the 3 teir/2 AZ subnet layout.
+A /23 Cidr range is required to be passed in as a parameter. The cloudformation template has an 'AllowedPattern' specified to check the passed in Cidr range is the correct subnet size. Built-in intrinsic functions - !Select and !Cidr - divide the supplied Cidr range into 6 /26 subnets and assigns them to the 3 tier/2 AZ subnet layout.
 
-This example is super easy way to get started building your web applicaiton on AWS in a consistant way!
+This quickstart makes it quick and easy to build your web application on AWS in a consistent manner.
 
 ### Deploy New Stack
 ```bash
